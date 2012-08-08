@@ -40,20 +40,34 @@ class BBCrumbs {
     global $post;
     $homeLink = get_bloginfo('url');
 
-    // Initialize the breadcrumbs var that will hold our breadcrumbs
+    // Create some helper functions
+    function bc_wrap($lis){
+      $crumbOpen   = '<nav class="breadcrumbs"><ol>'; // Note plural class name here
+      $crumbClose  = '</ol></nav>';
+
+      return $crumbOpen . $lis . $crumbClose;
+    }
+
+    function li_wrap($anchor_string) {
+      $li_open  = '<li class="breadcrumb" itemscope itemtype="http://data-vocabulary.org/Breadcrumb">';
+      $li_close = '</li>';
+
+      return $li_open . $anchor_string . $li_close;
+    }
+
+    // Initialize the breadcrumbs var that will hold our breadcrumbs & our homecrumb item.
     $breadcrumbs = '';
-    $crumbOpen   = '<nav class="breadcrumbs"><ol>'; // Note plural class name here
-    $crumbClose  = '</ol></nav>';
+    $homecrumb = li_wrap('<a href="' . $homeLink . '" itemprop="url"><span itemprop="title">' . $homeText . '</span></a>');
+
+    if (  is_home() || is_front_page()  ){
+
+      if ($showOnHome) { // We're on the home/front page, should we build breadcrumbs
+        $breadcrumbs .= bc_wrap($homecrumb);
+      }
+
+    } else { // We're not on the home/front page.
 
 
-    if ( ( $showOnHome == true ) && ( is_home() || is_front_page() ) ){
-      $breadcrumbs .= $crumbOpen;
-
-      $breadcrumbs .= '<li class="breadcrumb" itemscope itemtype="http://data-vocabulary.org/Breadcrumb">';
-      $breadcrumbs .= '<a href="' . $homeLink . '" itemprop="url">';
-      $breadcrumbs .= '<span itemprop="title">' . $homeText . '</span></a></li>';
-
-      $breadcrumbs .= $crumbClose;
     }
 
 
