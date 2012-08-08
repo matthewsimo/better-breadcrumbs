@@ -45,7 +45,10 @@ class BBCrumbs {
       $crumbOpen   = '<nav class="breadcrumbs"><ol>'; // Note plural class name here
       $crumbClose  = '</ol></nav>';
 
-      return $crumbOpen . $lis . $crumbClose;
+      if ($lis != '')
+        return $crumbOpen . $lis . $crumbClose;
+      else
+        return;
     }
 
     function li_wrap($anchor_string) {
@@ -62,17 +65,59 @@ class BBCrumbs {
     if (  is_home() || is_front_page()  ){
 
       if ($showOnHome) { // We're on the home/front page, should we build breadcrumbs
-        $breadcrumbs .= bc_wrap($homecrumb);
+        $breadcrumbs .= $homecrumb;
       }
 
     } else { // We're not on the home/front page.
+      // Move on to the logic for finding what kind of page and building the breadcrumbs specific to that page.
 
+      if ( is_category() ) { // Category specific pages
+
+        global $wp_query;
+        $thisCat = get_category($wp_query->get_queried_object()->term_id);
+        $parentCat = get_category($thisCat->parent);
+
+        if ($thisCat->parent != 0) {
+          $breadcrumbs .= "<li>" . get_category_parents($parentCat, TRUE, "</li>\n  $delimiter\n  <li>");
+        } else {
+          $breadcrumbs .= $before . 'Archive by category "' . single_cat_title('', false) . '"' . $after . "</li>" . "\n";
+        }
+
+      } elseif ( is_search() ) { // Search specific pages
+
+        $breadcrmbs .= li_wrap( $before . 'Search results for "' . get_search_query() . '"' . $after;
+
+      } elseif ( is_day() ) { // Day Archive specific pages
+
+      } elseif ( is_month() ) { // Month Archive specific pages
+
+      } elseif ( is_year() ) { // Year Archive specific pages
+
+      } elseif ( is_single() && !is_attachment() ) { // Single that's not an attachement
+
+      } elseif ( !is_single() && !is_page() && get_post_type() != 'post' && !is_404() ) { // Custom post types
+
+      } elseif ( is_attachment() ) { // Attachment specific pages
+
+      } elseif ( is_page() && !$post->post_parent ) { // WP Page w/o parents specific pages
+
+      } elseif ( is_page() && $post->post_parent ) { // WP Page w/ parents specific pages
+
+      } elseif ( is_tag() ) { // Tag Archive specific pages
+
+      } elseif ( is_author() ) { // Author specific pages
+
+      } elseif ( is_404() ) { // 404 specific pages
+
+      } else { // Anything not caught yet
+
+      }
 
     }
 
 
     // return our freshly baked breadcrumbs
-    return $breadcrumbs;
+    return bc_wrap($breadcrumbs);
   }
 }
 
